@@ -19,7 +19,7 @@ Various tools to help you with LaTeX projects
 
 ## Installation
 
-1. `brew tap zehua-chen/tools`
+1. `brew tap zehuac2/tools`
 2. `brew install latextools`
 
 ## Get Started
