@@ -1,9 +1,0 @@
-sections/
-*.tex
-*.bib
-latexproject.json
-
-*.zip
-*.tar.gz
-
-Makefile

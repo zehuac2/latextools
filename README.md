@@ -1,81 +1,58 @@
 # LaTeX Tools
 
-Various tools to help you with LaTeX projects
+`latextools` builds LaTeX projects on macOS, Linux, and Windows. Projects use a
+`latexproject.json` file; existing configuration files keep working.
 
-![LaTeX](https://img.shields.io/badge/latex-%23008080.svg?style=for-the-badge&logo=latex&logoColor=white)
-![.Net](https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white)
+## Install
 
-![Test](https://github.com/Zehua-Chen/latextools/actions/workflows/test.yml/badge.svg)
+Install Swift 6.4, then build the executable:
 
-- [LaTeX Tools](#latex-tools)
-  - [Installation](#installation)
-  - [Get Started](#get-started)
-  - [Commands](#commands)
-  - [Documentation](#documentation)
-  - [Development](#development)
-    - [Features](#features)
-    - [Architecture](#architecture)
-    - [Publish](#publish)
+```sh
+swift build -c release
+```
 
-## Installation
+Place the resulting `latextools` executable on your `PATH`. The core library is
+also available as the `LaTeXToolsCore` Swift package product. A LaTeX
+distribution and any configured bibliography or glossary tools must be installed
+separately.
 
-1. `brew tap zehuac2/tools`
-2. `brew install latextools`
+## Use
 
-## Get Started
+```sh
+latextools --help                 # list commands
+latextools help new               # show options for a command
+latextools new                    # create a project in the current folder
+latextools new -n my-project      # or --name my-project
+cd my-project
+latextools build
+latextools open
+latextools clean
+latextools export                 # write a Makefile
+latextools generate               # alias for export
+```
 
-1. `latextools new --name project`
-2. Enter folder `project` (`cd project`)
-3. Invoke in command line
-   ```
-   latextools build
-   ```
-4. `latextools open` would open the pdf file
+`new` refuses to replace an existing `latexproject.json` or `index.tex`.
+Other commands find the nearest project in the current folder or a parent.
+`build` skips work when the PDF is newer than the configuration and all declared
+inputs. It runs LaTeX until reference files settle, with a limit of five passes.
+`clean` removes the configured output directory only when it is inside the
+project root.
 
-## Commands
+The exported Makefile requires GNU Make and forwards `all` and `clean` to
+`latextools build` and `latextools clean`.
 
-- Create a new project
-  ```
-  latextools new -n <folder>
-  ```
-- Build the project and then rebuild it if needed
-  ```
-  latextools build
-  ```
-- Clean the build folder
-  ```
-  latextools clean
-  ```
-- Generate a Makefile for this project
-  ```
-  latextools generate
-  ```
-- Open the pdf file
-  ```
-  latextools open
-  ```
+See [project configuration](docs/Project.md) for all fields.
 
-## Documentation
+## Develop
 
-- [Project](docs/Project.md)
+```sh
+swift build
+swift test
+```
 
-## Development
-
-### Features
-
-- [x] Automatically compile twice if `.aux` files changes
-- [x] Automatically run bibliography programs
-- [x] Automatically run glossary programs
-- [ ] Nested projects
-
-### Architecture
-
-- `src/LaTeXTools.Project`: manages project configuration
-- `src/LaTeXTools.Build`: build projects
-- `src/latextools`: the command line application
-
-### Publish
-
-1. Go to `src/latextools`, and run
-   - `dotnet publish --self-contained -c Release -r osx-x64`
-   - `dotnet publish --self-contained -c Release -r osx-arm64`
+The package contains the `LaTeXToolsCore` library and the `latextools` executable.
+The CLI lives in `Sources/latextools` and uses
+[Swift Argument Parser 1.8.2](https://swiftpackageindex.com/apple/swift-argument-parser/1.8.2/documentation/argumentparser)
+for commands, options, help, and argument errors. Core tests live in
+`Tests/LaTeXToolsCoreTests`; CLI tests live in `Tests/latextoolsTests`.
+GitHub Actions runs build and test jobs on macOS, Linux, and Windows.

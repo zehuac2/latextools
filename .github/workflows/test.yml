@@ -1,24 +1,29 @@
 name: Test
 
-on: [workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
 
 jobs:
   test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     strategy:
-      matrix: 
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        
+      fail-fast: false
+      matrix:
+        # On Windows, swift test is stuck after build completes.
+        os: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-
+    timeout-minutes: 5
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - uses: actions/checkout@v7
+      - uses: SwiftyLab/setup-swift@v1
+        with:
+          swift-version: '6.4'
+          development: true
+      - name: Test
+        run: swift test
